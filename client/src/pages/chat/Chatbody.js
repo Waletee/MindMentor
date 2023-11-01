@@ -117,7 +117,21 @@ function Chatbody({ currentChat, userId, socket }) {
   return (
     <div className="chatbody">
       <div className="chatbody_header">
-        <Avatar />
+        {currentChat.profilePicture ? (
+          <img
+            src={currentChat.profilePicture}
+            alt=""
+            className="rounded-circle"
+            width="50"
+          />
+        ) : (
+          <img
+            src="./Unisex-avatar.jpg"
+            alt=""
+            className="rounded-circle"
+            width="50"
+          />
+        )}
         <div className="chatbody_headerInfo">
           <h3>{currentChat.username}</h3>
           {lastReceivedMessage ? (

@@ -1,35 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button, Form } from 'react-bootstrap';
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Form } from "react-bootstrap";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 import {
   accountSettingsRoute,
   accountDeleteRoute,
-} from '../../pages/api-routes/APIRoutes';
+} from "../../pages/api-routes/APIRoutes";
+import { Avatar } from "@mui/material";
+import { Followers } from "../../FollowerData/FollowersData";
 
 const ProfileUpdate = () => {
   const navigate = useNavigate();
 
   //error notification
   const toastOptions = {
-    position: 'top-right',
+    position: "top-right",
     autoClose: 8000,
     pauseOnHover: true,
     draggable: true,
-    theme: 'dark',
+    theme: "dark",
   };
 
   //Current User details
-  const [userName, setUsername] = useState('');
-  const [fullName, setfullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [profession, setProfession] = useState('');
-  const [location, setLocation] = useState('');
+  const [userName, setUsername] = useState("");
+  const [fullName, setfullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [profession, setProfession] = useState("");
+  const [location, setLocation] = useState("");
   const [userId, setUserId] = useState(undefined);
 
   useEffect(() => {
-    const currentUser = localStorage.getItem('mindmentor-user');
+    const currentUser = localStorage.getItem("mindmentor-user");
 
     if (currentUser) {
       try {
@@ -53,7 +55,7 @@ const ProfileUpdate = () => {
         setUserId(getId);
       } catch (e) {
         // Handle any parsing errors if the data is not valid JSON
-        console.e('Error parsing this data:', e);
+        console.e("Error parsing this data:", e);
       }
     }
   }, []);
@@ -61,12 +63,13 @@ const ProfileUpdate = () => {
   const [editMode, setEditMode] = useState(false);
 
   // Initialize state variables for updated user data
-  const [updatedFullName, setUpdatedFullName] = useState('');
-  const [updatedUsername, setUpdatedUsername] = useState('');
-  const [updatedEmail, setUpdatedEmail] = useState('');
-  const [updatedProfession, setUpdatedProfession] = useState('');
-  const [updatedLocation, setUpdatedLocation] = useState('');
-  const [updatedPassword, setUpdatedPassword] = useState('');
+  const [updatedFullName, setUpdatedFullName] = useState("");
+  const [updatedUsername, setUpdatedUsername] = useState("");
+  const [updatedEmail, setUpdatedEmail] = useState("");
+  const [updatedProfession, setUpdatedProfession] = useState("");
+  const [updatedLocation, setUpdatedLocation] = useState("");
+  const [picture, setPicture] = useState(null);
+  const [updatedPassword, setUpdatedPassword] = useState("");
 
   const handleToggleEdit = () => {
     setEditMode(!editMode);
@@ -82,18 +85,26 @@ const ProfileUpdate = () => {
         profession: updatedProfession,
         state_country: updatedLocation,
         password: updatedPassword,
+        profilePicture: picture,
+      };
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensure you set the correct content type
+        },
       };
 
       // Send a PUT request to update user information
       const { data } = await axios.put(
         accountSettingsRoute + userId,
-        updatedUserData
+        updatedUserData,
+        config
       );
       if (data.status === false) {
         toast.error(data.msg, toastOptions);
       } else if (data.status === true) {
         // Update the local user data and exit edit mode
-        localStorage.setItem('mindmentor-user', JSON.stringify(data.user));
+        localStorage.setItem("mindmentor-user", JSON.stringify(data.user));
         setEditMode(false);
 
         // Refresh the page
@@ -102,12 +113,19 @@ const ProfileUpdate = () => {
     }
   };
 
+  const onImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      let img = e.target.files[0];
+      setPicture(img);
+    }
+  };
+
   //Delete Profile Function
 
   const handleDelete = async () => {
     // Show a confirmation dialog to confirm the delete action
     const confirmation = window.confirm(
-      'Are you sure you want to delete your profile? This action cannot be undone.'
+      "Are you sure you want to delete your profile? This action cannot be undone."
     );
 
     if (confirmation) {
@@ -119,13 +137,13 @@ const ProfileUpdate = () => {
           toast.error(data.msg, toastOptions);
         } else if (data.status === true) {
           // Delete was successful, log the user out and redirect to the login page
-          localStorage.removeItem('mindmentor-user');
-          navigate('/register');
+          localStorage.removeItem("mindmentor-user");
+          navigate("/register");
         }
       } catch (error) {
-        console.error('Error deleting user profile:', error);
+        console.error("Error deleting user profile:", error);
         toast.error(
-          'An error occurred while deleting your profile. Please try again later.',
+          "An error occurred while deleting your profile. Please try again later.",
           toastOptions
         );
       }
@@ -138,28 +156,28 @@ const ProfileUpdate = () => {
       this.state;
     if (username.length < 3) {
       toast.error(
-        'Username should be greater than 3 characters.',
+        "Username should be greater than 3 characters.",
         toastOptions
       );
       return false;
     } else if (password.length < 8) {
       toast.error(
-        'Password should be equal or greater than 8 characters.',
+        "Password should be equal or greater than 8 characters.",
         toastOptions
       );
       return false;
-    } else if (email === '') {
-      toast.error('Email is required.', toastOptions);
+    } else if (email === "") {
+      toast.error("Email is required.", toastOptions);
       return false;
-    } else if (profession === '') {
-      toast.error('What you do is required.', toastOptions);
+    } else if (profession === "") {
+      toast.error("What you do is required.", toastOptions);
       return false;
-    } else if (state_country === '') {
-      toast.error('Your present state and country is required.', toastOptions);
+    } else if (state_country === "") {
+      toast.error("Your present state and country is required.", toastOptions);
       return false;
     } else if (fullname.length < 6) {
       toast.error(
-        'Fullname should be greater than 6 characters.',
+        "Fullname should be greater than 6 characters.",
         toastOptions
       );
       return false;
@@ -167,22 +185,24 @@ const ProfileUpdate = () => {
 
     return true;
   };
-  
+
   // State variable to store user preferences
   const [preferences, setPreferences] = useState([]);
-  const [newPreference, setNewPreference] = useState('');
+  const [newPreference, setNewPreference] = useState("");
 
   // Function to add a new preference
   const handleAddPreference = () => {
-    if (newPreference.trim() !== '') {
+    if (newPreference.trim() !== "") {
       setPreferences([...preferences, newPreference]);
-      setNewPreference('');
+      setNewPreference("");
     }
   };
 
   // Function to remove a preference
   const handleRemovePreference = (preference) => {
-    const updatedPreferences = preferences.filter((item) => item !== preference);
+    const updatedPreferences = preferences.filter(
+      (item) => item !== preference
+    );
     setPreferences(updatedPreferences);
   };
 
@@ -191,7 +211,7 @@ const ProfileUpdate = () => {
       <div className="col-md-8">
         <div className="card mb-3">
           <div className="card-body">
-            <form>
+            <form encType="multipart/form-data">
               <div className="row">
                 <div className="col-sm-3">
                   <h6 className="mb-0">Full Name</h6>
@@ -292,6 +312,23 @@ const ProfileUpdate = () => {
                 </div>
               </div>
               <hr />
+              <div className="row">
+                <div className="col-sm-3">
+                  <h6 className="mb-0">Profile Image</h6>
+                </div>
+                <div className="col-sm-9 text-secondary">
+                  {editMode ? (
+                    <input
+                      key="fileInput"
+                      className="form-control"
+                      type="file"
+                      name="profilePicture"
+                      onChange={onImageChange}
+                    />
+                  ) : null}
+                </div>
+              </div>
+              <hr />
               {editMode ? (
                 <div className="row">
                   <div className="col-sm-3">
@@ -308,7 +345,7 @@ const ProfileUpdate = () => {
                         onChange={(e) => setUpdatedPassword(e.target.value)}
                       />
                     ) : (
-                      '*********'
+                      "*********"
                     )}
                   </div>
                 </div>
@@ -334,17 +371,14 @@ const ProfileUpdate = () => {
                   ) : (
                     <button
                       type="button"
-                      className="btn btn-primary"
+                      className="fl-btn"
                       onClick={handleToggleEdit}
                     >
                       Edit Profile
                     </button>
                   )}
                   {editMode ? (
-                    <button
-                      className="btn btn-primary ms-2"
-                      onClick={handleSubmit}
-                    >
+                    <button className="fl-btn ms-2" onClick={handleSubmit}>
                       Update
                     </button>
                   ) : (
@@ -358,6 +392,34 @@ const ProfileUpdate = () => {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+      {/* Followers */}
+      <div className="container my-5">
+        <div className="card shadow">
+          <div className="card-header bg-success text-white">
+            <h1>Your Followers</h1>
+          </div>
+          <div className=" card-body follower-view">
+            {Followers.map((follower, id) => {
+              return (
+                <div className="follower">
+                  <div>
+                    {follower.img ? (
+                      <img src="./mentor1.jpg" alt="" className="followerImg" />
+                    ) : (
+                      <Avatar />
+                    )}
+                    <div className="follower-name">
+                      <span>{follower.name}</span>
+                      <span>@{follower.username}</span>
+                    </div>
+                  </div>
+                  <button className="fl-btn">Follow</button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -375,7 +437,7 @@ const ProfileUpdate = () => {
                   type="text"
                   placeholder="stress, anxiety, depression..."
                   value={newPreference}
-                    onChange={(e) => setNewPreference(e.target.value)}
+                  onChange={(e) => setNewPreference(e.target.value)}
                 />
               </Form.Group>
               <Button
@@ -389,7 +451,7 @@ const ProfileUpdate = () => {
             <div className="mt-3">
               <h4>Your Saved Preferences:</h4>
               <div className="btn-group gap-1">
-              {preferences.map((preference, index) => (
+                {preferences.map((preference, index) => (
                   <Button
                     key={index}
                     variant="btn-outline-secondary"
@@ -398,7 +460,7 @@ const ProfileUpdate = () => {
                   >
                     {preference} <span className="text-danger">X</span>
                   </Button>
-                   ))}
+                ))}
               </div>
             </div>
           </div>
@@ -409,7 +471,7 @@ const ProfileUpdate = () => {
         <h1>Recommended</h1>
         <div className="row mt-4">
           <div className="col-lg-3 col-sm-6 mb-4">
-            <div className="card profile" style={{ width: '18rem' }}>
+            <div className="card profile" style={{ width: "18rem" }}>
               <img src="./mentor1.jpg" className="card-img-top" alt="..." />
               <div className="card-body">
                 <h5 className="card-title">Pitch Dark</h5>
@@ -429,7 +491,7 @@ const ProfileUpdate = () => {
             </div>
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
-            <div className="card profile" style={{ width: '18rem' }}>
+            <div className="card profile" style={{ width: "18rem" }}>
               <img src="./mentor1.jpg" className="card-img-top" alt="..." />
               <div className="card-body">
                 <h5 className="card-title">Pitch Dark</h5>
@@ -449,7 +511,7 @@ const ProfileUpdate = () => {
             </div>
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
-            <div className="card profile" style={{ width: '18rem' }}>
+            <div className="card profile" style={{ width: "18rem" }}>
               <img src="./mentor1.jpg" className="card-img-top" alt="..." />
               <div className="card-body">
                 <h5 className="card-title">Pitch Dark</h5>
@@ -469,7 +531,7 @@ const ProfileUpdate = () => {
             </div>
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
-            <div className="card profile" style={{ width: '18rem' }}>
+            <div className="card profile" style={{ width: "18rem" }}>
               <img src="./mentor1.jpg" className="card-img-top" alt="..." />
               <div className="card-body">
                 <h5 className="card-title">Pitch Dark</h5>

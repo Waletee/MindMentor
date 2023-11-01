@@ -11,6 +11,7 @@ const port = process.env.PORT || 4001;
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads/profile-pictures"));
 
 // Connect to MongoDB using Mongoose
 //in the .env file input,LOCALURI="mongodb://0.0.0.0:27017/mindmentor"

@@ -11,6 +11,10 @@
   border-bottom: 1px solid lightgray;
 }
 
+.rounded-circle {
+  padding-bottom: 10px;
+}
+
 .chatbody_headerInfo {
   padding-left: 20px;
   flex: 1;

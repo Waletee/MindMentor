@@ -29,10 +29,20 @@ function SidebarChat({ addNewChat, contacts, changeChat }) {
             className={`contact ${index === currentSelected ? "selected" : ""}`}
             onClick={() => changeCurrentChat(index, contact)}
           >
-            {contact.avatarImage ? (
-              <img src={contact.avatarImage} alt="" />
+            {contact.profilePicture ? (
+              <img
+                src={contact.profilePicture}
+                alt=""
+                className="rounded-circle"
+                width="50"
+              />
             ) : (
-              <Avatar />
+              <img
+                src="./Unisex-avatar.jpg"
+                alt=""
+                className="rounded-circle"
+                width="50"
+              />
             )}
             <div className="username">
               <h2>{contact.username}</h2>
