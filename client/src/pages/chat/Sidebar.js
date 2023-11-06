@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
-import DonutLargeIcon from "@mui/icons-material/DonutLarge";
-import ChatIcon from "@mui/icons-material/Chat";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { Avatar, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import HomeIcon from "@mui/icons-material/Home";
 import SidebarChat from "./SidebarChat";
@@ -11,6 +8,29 @@ import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ contacts, changeChat }) => {
   const navigate = useNavigate();
+  //Getting Profile picture from MongoDB
+  const [profilePicture, setProfilePicture] = useState("");
+
+  useEffect(() => {
+    const currentUser = localStorage.getItem("mindmentor-user");
+
+    if (currentUser) {
+      try {
+        // Parse the currentUser string as JSON
+        const currentUserObjects = JSON.parse(currentUser);
+
+        // Accessing the profilePicture property
+        const getPicture = currentUserObjects.profilePicture;
+
+        // Seting the profilePicture in the component's state
+        setProfilePicture(getPicture);
+      } catch (e) {
+        // Handle any parsing errors if the data is not valid JSON
+        console.e("Error parsing this data:", e);
+      }
+    }
+  }, []);
+
   const handleClick = (e) => {
     navigate("/");
   };
@@ -18,7 +38,23 @@ const Sidebar = ({ contacts, changeChat }) => {
   return (
     <div className="sidebar">
       <div className="sidebar_header">
-        <Avatar src="https://th.bing.com/th/id/OIP.M6W6kdu53XZ356qV8lNQvQHaE7?w=288&h=191&c=7&r=0&o=5&dpr=1.3&pid=1.7" />
+        {profilePicture ? (
+          <img
+            src={
+              `http://localhost:4001/uploads/profile-pictures/` + profilePicture
+            }
+            alt="User Profile-Picture"
+            className="topImg"
+            width="150"
+          />
+        ) : (
+          <img
+            src="./Unisex-avatar.jpg"
+            alt="Default Profile-Picture"
+            className="topImg"
+            width="150"
+          />
+        )}
         <div className="sidebar_headerRight">
           <IconButton onClick={(e) => handleClick(e)}>
             <HomeIcon />

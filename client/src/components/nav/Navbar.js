@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
@@ -12,6 +12,30 @@ const NavBar = () => {
   const { user, dispatch } = useContext(Context);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
+
+  //Getting Profile picture from MongoDB
+  const [profilePicture, setProfilePicture] = useState("");
+
+  useEffect(() => {
+    const currentUser = localStorage.getItem("mindmentor-user");
+
+    if (currentUser) {
+      try {
+        // Parse the currentUser string as JSON
+        const currentUserObjects = JSON.parse(currentUser);
+
+        // Accessing the profilePicture property
+        const getPicture = currentUserObjects.profilePicture;
+
+        // Seting the profilePicture in the component's state
+        setProfilePicture(getPicture);
+      } catch (e) {
+        // Handle any parsing errors if the data is not valid JSON
+        console.e("Error parsing this data:", e);
+      }
+    }
+  }, []);
+
   const handleLogout = () => {
     setShowLogoutModal(true);
   };
@@ -66,7 +90,24 @@ const NavBar = () => {
                     Logout
                   </button>
                   <Link className="link" to="/profile">
-                    <img className="topImg" src="./avatar.png" alt="" />
+                    {profilePicture ? (
+                      <img
+                        src={
+                          `http://localhost:4001/uploads/profile-pictures/` +
+                          profilePicture
+                        }
+                        alt="User Profile-Picture"
+                        className="topImg"
+                        width="150"
+                      />
+                    ) : (
+                      <img
+                        src="./Unisex-avatar.jpg"
+                        alt="Default Profile-Picture"
+                        className="topImg"
+                        width="150"
+                      />
+                    )}
                   </Link>
                 </div>
               ) : (

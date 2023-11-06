@@ -34,7 +34,7 @@ router.put(
   accountSettings
 );
 router.delete("/accountdelete/:userId", accountDelete);
-router.put("/:id/follow", followUser);
-router.put("/:id/unfollow", unFollowUser);
+router.put("/follow/:id", followUser);
+router.put("/unfollow/:id", unFollowUser);
 
 module.exports = router;

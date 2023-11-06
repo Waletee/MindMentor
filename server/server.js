@@ -12,10 +12,7 @@ const port = process.env.PORT || 4001;
 
 app.use(cors());
 app.use(express.json());
-app.use(
-  "/uploads",
-  express.static("http://localhost:4001/routes/uploads/profile-pictures")
-);
+app.use(express.static("routes"));
 
 // Connect to MongoDB using Mongoose
 //in the .env file input,LOCALURI="mongodb://0.0.0.0:27017/mindmentor"

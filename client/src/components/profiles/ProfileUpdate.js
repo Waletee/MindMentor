@@ -2,16 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import {
   accountSettingsRoute,
   accountDeleteRoute,
+  getAllUsersRoute,
+  followUser,
+  unFollowUser,
 } from "../../pages/api-routes/APIRoutes";
-import { Avatar } from "@mui/material";
-import { Followers } from "../../FollowerData/FollowersData";
 
 const ProfileUpdate = () => {
   const navigate = useNavigate();
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   //error notification
   const toastOptions = {
@@ -204,6 +208,76 @@ const ProfileUpdate = () => {
       (item) => item !== preference
     );
     setPreferences(updatedPreferences);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${getAllUsersRoute}/${userId}`);
+        setContacts(response.data);
+        setLoading(false); // Set loading to false on successful response
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(error); // Set error state in case of an error
+        setLoading(false); // Set loading to false on error
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  const handleFollow = async (followerId) => {
+    try {
+      // Send a GET request to check if the user is already following the target user
+      const { data } = await axios.get(followUser + `/${followerId}`);
+
+      if (data.status === "Following") {
+        // If the user is already following, send an "unfollow" request
+        await unfollowUserAction(followerId);
+      } else {
+        // If the user is not following, send a "follow" request
+        await followUserAction(followerId);
+      }
+    } catch (error) {
+      // Handle any errors that may occur during the follow/unfollow process
+      console.error("Error following/unfollowing user:", error);
+    }
+  };
+
+  // Helper function to follow a user
+  const followUserAction = async (followerId) => {
+    try {
+      const followData = await axios.put(followUser + `/${followerId}`);
+      // Handle the response as needed
+
+      // Update the contacts array to replace _id with followerId
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact._id === followerId ? { ...contact, _id: followerId } : contact
+        )
+      );
+    } catch (error) {
+      // Handle any errors that may occur during the follow process
+      console.error("Error following user:", error);
+    }
+  };
+
+  // Helper function to unfollow a user
+  const unfollowUserAction = async (followerId) => {
+    try {
+      const unfollowData = await axios.put(unFollowUser + `/${followerId}`);
+      // Handle the response as needed
+
+      // Update the contacts array to replace _id with followerId
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact._id === followerId ? { ...contact, _id: followerId } : contact
+        )
+      );
+    } catch (error) {
+      // Handle any errors that may occur during the unfollow process
+      console.error("Error unfollowing user:", error);
+    }
   };
 
   return (
@@ -399,24 +473,41 @@ const ProfileUpdate = () => {
       <div className="container my-5">
         <div className="card shadow">
           <div className="card-header bg-success text-white">
-            <h1>Your Followers</h1>
+            <h1>People You May Know</h1>
           </div>
           <div className=" card-body follower-view">
-            {Followers.map((follower, id) => {
+            {contacts.map((follower, id) => {
               return (
                 <div className="follower">
                   <div>
-                    {follower.img ? (
-                      <img src="./mentor1.jpg" alt="" className="followerImg" />
+                    {follower.profilePicture ? (
+                      <img
+                        src={
+                          `http://localhost:4001/uploads/profile-pictures/` +
+                          follower.profilePicture
+                        }
+                        alt=""
+                        className="followerImg"
+                      />
                     ) : (
-                      <Avatar />
+                      <img
+                        src="./Unisex-avatar.jpg"
+                        alt=""
+                        className="followerImg"
+                      />
                     )}
+
                     <div className="follower-name">
-                      <span>{follower.name}</span>
-                      <span>@{follower.username}</span>
+                      <span>{follower.fullname}</span>
+                      <span>{follower.username}</span>
                     </div>
                   </div>
-                  <button className="fl-btn">Follow</button>
+                  <button
+                    className="fl-btn"
+                    onClick={() => handleFollow(follower._id)}
+                  >
+                    Follow
+                  </button>
                 </div>
               );
             })}

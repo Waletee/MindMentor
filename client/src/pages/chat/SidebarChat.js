@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./SidebarChat.css";
-import { Avatar } from "@mui/material";
 
 function SidebarChat({ addNewChat, contacts, changeChat }) {
   const [currentSelected, setCurrentSelected] = useState(undefined);
@@ -9,16 +8,6 @@ function SidebarChat({ addNewChat, contacts, changeChat }) {
     setCurrentSelected(index);
     changeChat(contact);
   };
-
-  {
-    /*const createChat = () => {
-    const userName = prompt("Please enter a user to chat with");
-
-    if (userName) {
-      //input database stuffs here
-    }
-  };*/
-  }
 
   return !addNewChat ? (
     <div className="contacts">
@@ -31,7 +20,10 @@ function SidebarChat({ addNewChat, contacts, changeChat }) {
           >
             {contact.profilePicture ? (
               <img
-                src={contact.profilePicture}
+                src={
+                  `http://localhost:4001/uploads/profile-pictures/` +
+                  contact.profilePicture
+                }
                 alt=""
                 className="rounded-circle"
                 width="50"

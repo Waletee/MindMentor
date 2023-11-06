@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./Chatbody.css";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
-import { Avatar, IconButton } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import MicIcon from "@mui/icons-material/Mic";
 import Picker from "emoji-picker-react";
 import axios from "axios";
@@ -119,7 +115,10 @@ function Chatbody({ currentChat, userId, socket }) {
       <div className="chatbody_header">
         {currentChat.profilePicture ? (
           <img
-            src={currentChat.profilePicture}
+            src={
+              `http://localhost:4001/uploads/profile-pictures/` +
+              currentChat.profilePicture
+            }
             alt=""
             className="rounded-circle"
             width="50"

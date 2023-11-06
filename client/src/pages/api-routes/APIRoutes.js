@@ -12,3 +12,5 @@ export const userChatRoute = `${host}/chat/userchat`;
 export const findChathatRoute = `${host}/chat/find/:firstId/:secondId`;
 export const addMessageRoute = `${host}/api/messages/addmsg`;
 export const getMessageRoute = `${host}/api/messages/getmsg`;
+export const followUser = `${host}/api/auth/follow`;
+export const unFollowUser = `${host}/api/auth/unfollow`;
