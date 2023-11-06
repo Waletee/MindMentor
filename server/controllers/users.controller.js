@@ -49,6 +49,8 @@ module.exports.getUser = async (req, res, next) => {
       "profilePicture",
       "_id",
       "profession",
+      "following",
+      "followers",
     ]);
     return res.json(users);
   } catch (ex) {
@@ -66,6 +68,8 @@ module.exports.getAllUsers = async (req, res, next) => {
       "profilePicture",
       "_id",
       "profession",
+      "following",
+      "followers",
     ]);
     return res.json(users);
   } catch (ex) {

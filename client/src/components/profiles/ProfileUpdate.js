@@ -32,7 +32,8 @@ const ProfileUpdate = () => {
   const [email, setEmail] = useState("");
   const [profession, setProfession] = useState("");
   const [location, setLocation] = useState("");
-  const [userId, setUserId] = useState(undefined);
+  const [userId, setUserId] = useState("");
+  const [following, setFollowing] = useState("");
 
   useEffect(() => {
     const currentUser = localStorage.getItem("mindmentor-user");
@@ -49,6 +50,7 @@ const ProfileUpdate = () => {
         const getProfession = currentUserObjects.profession;
         const getLocation = currentUserObjects.state_country;
         const getId = currentUserObjects._id;
+        const getFollowing = currentUserObjects.following;
 
         // Setting the username in the component's state
         setUsername(getUsername);
@@ -57,6 +59,7 @@ const ProfileUpdate = () => {
         setProfession(getProfession);
         setLocation(getLocation);
         setUserId(getId);
+        setFollowing(getFollowing);
       } catch (e) {
         // Handle any parsing errors if the data is not valid JSON
         console.e("Error parsing this data:", e);
@@ -226,36 +229,31 @@ const ProfileUpdate = () => {
     fetchData();
   }, [userId]);
 
+  //handle follow and unfollow functinalities
   const handleFollow = async (followerId) => {
     try {
-      // Send a GET request to check if the user is already following the target user
-      const { data } = await axios.get(followUser + `/${followerId}`);
+      // Send a PUT request to follow the user
+      const followData = await axios.put(followUser + `/${followerId}`, {
+        _id: userId,
+      });
 
-      if (data.status === "Following") {
-        // If the user is already following, send an "unfollow" request
-        await unfollowUserAction(followerId);
+      if (followData.status === 200) {
+        // Handle the response as needed, e.g., update UI
+        console.log("User followed!");
       } else {
-        // If the user is not following, send a "follow" request
-        await followUserAction(followerId);
+        // Handle other response statuses or errors
+        console.error("Failed to follow user.");
+        // Handle the response as needed
+
+        // Update the contacts array to replace _id with followerId
+        setContacts((prevContacts) =>
+          prevContacts.map((contact) =>
+            contact._id === followerId
+              ? { ...contact, _id: followerId }
+              : contact
+          )
+        );
       }
-    } catch (error) {
-      // Handle any errors that may occur during the follow/unfollow process
-      console.error("Error following/unfollowing user:", error);
-    }
-  };
-
-  // Helper function to follow a user
-  const followUserAction = async (followerId) => {
-    try {
-      const followData = await axios.put(followUser + `/${followerId}`);
-      // Handle the response as needed
-
-      // Update the contacts array to replace _id with followerId
-      setContacts((prevContacts) =>
-        prevContacts.map((contact) =>
-          contact._id === followerId ? { ...contact, _id: followerId } : contact
-        )
-      );
     } catch (error) {
       // Handle any errors that may occur during the follow process
       console.error("Error following user:", error);
@@ -263,22 +261,37 @@ const ProfileUpdate = () => {
   };
 
   // Helper function to unfollow a user
-  const unfollowUserAction = async (followerId) => {
+  const handleUnFollow = async (followerId) => {
     try {
-      const unfollowData = await axios.put(unFollowUser + `/${followerId}`);
+      const unfollowData = await axios.put(unFollowUser + `/${followerId}`, {
+        _id: userId,
+      });
       // Handle the response as needed
 
-      // Update the contacts array to replace _id with followerId
-      setContacts((prevContacts) =>
-        prevContacts.map((contact) =>
-          contact._id === followerId ? { ...contact, _id: followerId } : contact
-        )
-      );
+      if (unfollowData.status === 200) {
+        // Handle the response as needed, e.g., update UI
+        console.log("User unfollowed!");
+      } else {
+        // Handle other response statuses or errors
+        console.error("Failed to unfollow user.");
+        // Handle the response as needed
+
+        // Update the contacts array to replace _id with followerId
+        setContacts((prevContacts) =>
+          prevContacts.map((contact) =>
+            contact._id === followerId
+              ? { ...contact, _id: followerId }
+              : contact
+          )
+        );
+      }
     } catch (error) {
       // Handle any errors that may occur during the unfollow process
       console.error("Error unfollowing user:", error);
     }
   };
+
+  console.log("Numbers of followers:", following.length);
 
   return (
     <>
@@ -477,6 +490,8 @@ const ProfileUpdate = () => {
           </div>
           <div className=" card-body follower-view">
             {contacts.map((follower, id) => {
+              const isFollowing = following.includes(follower._id);
+
               return (
                 <div className="follower">
                   <div>
@@ -504,9 +519,15 @@ const ProfileUpdate = () => {
                   </div>
                   <button
                     className="fl-btn"
-                    onClick={() => handleFollow(follower._id)}
+                    onClick={() => {
+                      if (isFollowing) {
+                        handleUnFollow(follower._id);
+                      } else {
+                        handleFollow(follower._id);
+                      }
+                    }}
                   >
-                    Follow
+                    {isFollowing ? "Unfollow" : "Follow"}
                   </button>
                 </div>
               );
